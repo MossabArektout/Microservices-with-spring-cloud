@@ -16,14 +16,6 @@ public class CustomerServiceApplication {
 
     @Bean
     CommandLineRunner commandLineRunner(CustomerRepository customerRepository) {
-//        return args -> {
-//            // Utilisation du constructeur pour créer les clients
-//            Customer customer1 = new Customer("Mossab", "Arektout", "arektout@gmail.com");
-//            customerRepository.save(customer1);
-//
-//            Customer customer2 = new Customer("Souhaib", "Arektout", "soso@gmail.com");
-//            customerRepository.save(customer2);
-//        };
         return args -> {
             Customer customer1 = Customer.builder()
                     .firstName("Mossab")
