@@ -16,6 +16,7 @@ public interface CustomerRestClient {
     @CircuitBreaker(name = "customerService", fallbackMethod = "getDefaultCustomer")
     Customer findCustomerById(@PathVariable Long id);
     @GetMapping("/customers")
+    @CircuitBreaker(name = "customerService", fallbackMethod = "getDefaultCustomers")
     List<Customer> allCustomers();
 
     default Customer getDefaultCustomer(Long id, Exception exception) {
@@ -25,5 +26,8 @@ public interface CustomerRestClient {
         customer.setLastName("default last name");
         customer.setEmail("Not available");
         return customer;
+    }
+    default List<Customer> getDefaultCustomers(Exception exception) {
+        return List.of();
     }
 }

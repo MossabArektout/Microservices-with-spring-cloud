@@ -19,7 +19,7 @@ public class BankAccount {
     private String currency;
     @Enumerated(EnumType.STRING)
     private AccountType type;
+    private Long customerId;
     @Transient               // ignore cette attribut, c-a-d c'est un attribut qui existe dans la classe mais pas au niveau de la base de donnes
     private Customer customer;
-    private Long customerId;
 }
