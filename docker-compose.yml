@@ -6,6 +6,8 @@ services:
     container_name: discovery-service
     ports:
       - "8761:8761"
+    networks:
+      - monitoring
 
   config-service:
     build: ./config-service
@@ -14,6 +16,8 @@ services:
       - "9999:9999"
     depends_on:
       - discovery-service
+    networks:
+      - monitoring
 
   account-service:
     build: ./account-service
@@ -23,6 +27,8 @@ services:
     depends_on:
       - discovery-service
       - config-service
+    networks:
+      - monitoring
 
   customer-service:
     build: ./customer-service
@@ -32,6 +38,8 @@ services:
     depends_on:
       - config-service
       - discovery-service
+    networks:
+      - monitoring
 
   gateway-service:
     build: ./gateway-service
@@ -42,3 +50,51 @@ services:
       - discovery-service
       - account-service
       - customer-service
+    networks:
+      - monitoring
+
+  prometheus:
+    build: ./prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - monitoring
+    depends_on:
+      - discovery-service
+      - config-service
+      - account-service
+      - customer-service
+      - gateway-service
+
+  grafana:
+    build: ./grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
