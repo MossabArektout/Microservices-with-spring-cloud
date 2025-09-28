@@ -1,12 +1,12 @@
-# Microservice Architecture Practice Application
+# Microservice Architecture with Full Observability Stack
 
-This project demonstrates the implementation of a microservices architecture using Spring Boot and Spring Cloud technologies. It incorporates key components of a modern distributed system, including a service registry, API gateway, configuration service, and inter-service communication.
+This project demonstrates the implementation of a modern microservices architecture using Spring Boot and Spring Cloud technologies, enhanced with comprehensive observability using Prometheus, Grafana, and OpenTelemetry
 
 ---
 
 ## Architecture Overview
 
-### Components
+### Core Components
 
 1. **Spring Cloud Gateway**:
    - Serves as the single entry point for clients.
@@ -29,6 +29,26 @@ This project demonstrates the implementation of a microservices architecture usi
 
 5. **Clients**:
    - External clients interact with the system via the API gateway.
+
+---
+
+### Observability Stack
+
+5. **Prometheus**:
+   - Collects and stores metrics from all services
+   - Powerful query language for metric analysis
+
+6. **Grafana**:
+   - Rich visualization and dashboarding platform
+   - Displays metrics, traces, and logs in unified views
+
+7. **OpenTelemetry Collector**:
+   - Centralized telemetry data collection
+   - Supports multiple exporters and protocols
+
+8. **Jaeger**:
+   - Distributed tracing system
+   - Visualizes request flows across microservices
 
 ---
 
