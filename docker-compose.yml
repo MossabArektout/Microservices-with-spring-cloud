@@ -6,6 +6,9 @@ services:
     container_name: discovery-service
     ports:
       - "8761:8761"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=discovery-service
     networks:
       - monitoring
 
@@ -14,6 +17,9 @@ services:
     container_name: config-service
     ports:
       - "9999:9999"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=config-service
     depends_on:
       - discovery-service
     networks:
@@ -24,6 +30,9 @@ services:
     container_name: account-service
     ports:
       - "8081:8081"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=config-service
     depends_on:
       - discovery-service
       - config-service
@@ -35,6 +44,9 @@ services:
     container_name: customer-service
     ports:
       - "8082:8082"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=config-service
     depends_on:
       - config-service
       - discovery-service
@@ -46,6 +58,9 @@ services:
     container_name: gateway-service
     ports:
       - "8888:8888"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=config-service
     depends_on:
       - discovery-service
       - account-service
@@ -70,11 +85,7 @@ services:
     networks:
       - monitoring
     depends_on:
-      - discovery-service
-      - config-service
-      - account-service
-      - customer-service
-      - gateway-service
+      - otel-collector
 
   grafana:
     build: ./grafana
@@ -84,12 +95,38 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
       - monitoring
     depends_on:
       - prometheus
+      - tempo
+
+  tempo:
+    build: ./tempo
+    container_name: tempo
+    ports:
+      - "3200:3200"  # Tempo
+      - "43171:4317"  # OTLP gRPC - Changed from 4317 to 43171
+      - "43181:4318"  # OTLP HTTP - Changed from 4318 to 43181
+    networks:
+      - monitoring
+
+  otel-collector:
+    build: ./otel-config
+    container_name: otel-collector
+    ports:
+      - "43172:4317"  # OTLP gRPC - Changed from 4317 to 43172
+      - "43182:4318"  # OTLP HTTP - Changed from 4318 to 43182
+      - "8889:8889"  # Prometheus metrics
+      - "13133:13133" # Health check
+      - "55679:55679" # zPages
+    networks:
+      - monitoring
+    depends_on:
+      - tempo
 
 networks:
   monitoring:
@@ -98,3 +135,4 @@ networks:
 volumes:
   prometheus_data:
   grafana_data:
+  tempo_data:
